@@ -1,4 +1,0 @@
-﻿  FileName.cpp
-C:\Users\17564\source\repos\framework\framework\FileName.cpp(92,22): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\17564\source\repos\framework\framework\FileName.cpp(108,22): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-  framework.vcxproj -> C:\Users\17564\source\repos\framework\x64\Debug\framework.exe

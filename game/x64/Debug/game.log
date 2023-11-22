@@ -1,0 +1,6 @@
+﻿  game.c
+C:\阿巴阿巴\zzz\zzz\啊啊啊啊\game\game\game.c(144,63): warning C4554: “&”: 检查运算符优先级是否存在的可能的错误；使用括号阐明优先级
+  三子棋.cpp
+C:\阿巴阿巴\zzz\zzz\啊啊啊啊\game\game\game.c(144): warning C4554: “&”: 检查运算符优先级是否存在的可能的错误；使用括号阐明优先级
+  LINK : 没有找到 C:\阿巴阿巴\zzz\zzz\啊啊啊啊\game\x64\Debug\game.exe 或上一个增量链接没有生成它；正在执行完全链接
+  game.vcxproj -> C:\阿巴阿巴\zzz\zzz\啊啊啊啊\game\x64\Debug\game.exe

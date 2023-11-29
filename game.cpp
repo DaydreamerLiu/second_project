@@ -68,7 +68,8 @@ typedef struct zombie
 	int danmage_point;//破损点
 	int buff;		//僵尸受到的负面影响
 	int star_time;   //buff效果的计时器 （用于计时消除buff效果）
-
+	int row;
+	int frame;
 	struct zombie* next;
 }Zombie;
 struct sunshine
@@ -87,21 +88,26 @@ void luru()
 {
 	plantshuzu[1].cost = 100;
 }
+Zombie* zp;
 
+
+
+struct bullet *bullets;    //子弹
+IMAGE imgBullet;
+IMAGE imgBulletBlast[4];
 int curZhiWu;
 int curX, curY;
 IMAGE imgbg[6];
 IMAGE cards[10];  //卡片功能完成
 IMAGE plantlist;
 IMAGE *plants[100][30];
+IMAGE imgzombies[100][30];
 MAP map[5];  //该结构体存的是 某关是几行几列 图片序号
 IMAGE sunshine[29];
 struct sunshine s[10]; //阳光池
 struct guanqiamap m[5][9];  //该结构体存的是小关卡里某行某列那个是否有植物
 int listplant[8]; //创建一个存选择植物id（按顺序）的数组
-
-
-//用这个结构体里面的id来快捷loadimag cards ， plants ，plants 的 frame （这就是为什么要把id改成字符串） 这样把植物帧数放在植物对应id的文件夹里就可以实现帧数的变化
+int zombie_num[];
 ExMessage msg;
 int plantchoose;
 void collectSunshine(ExMessage* msg) {
@@ -277,27 +283,35 @@ void game_init()
 	for (int i = 0; i <= 2; i++)  //先试两个
 	{
 		sprintf_s(name, sizeof(name), "res/Cards/card_%d.png", plantput[i]);
-		loadimage(&cards[i], name,CARD_WIDTH,CARD_HIGH);
+		loadimage(&cards[i], name, CARD_WIDTH, CARD_HIGH);
 	}
-	
-	
-	//loadimage()
-	initgraph(SCREEN_WIDTH,SCREEN_HIGH);
-	LOGFONT f;
-	gettextstyle(&f);                     // 获取当前字体设置
-	f.lfHeight = 30;                      // 设置字体高度为 48
-	f.lfWidth = 15;
-	strcpy_s(f.lfFaceName, "Segoe UI Black");
-	f.lfQuality = ANTIALIASED_QUALITY;    // 设置输出效果为抗锯齿  
-	settextstyle(&f);                     // 设置字体样式
-	setbkmode(TRANSPARENT);
-	setcolor(BLACK);
 
-	//mciSendString("play res/bg.mp3 repeat", 0, 0, 0);
-	
+	loadimage(&imgBullet, "res/bullets/bullet_normal.png");
+	bullets = new bullet;   //创建子弹头指针
+	bullets->next = NULL;
+	loadimage(&imgBulletBlast[3], "res/bullets/bullet_blast.png");
+	for (int i = 0; i < 3; i++) {
+		float k = (i + 1) * 0.2;
+		loadimage(&imgBulletBlast[i], "res/bullets/bullet_blast.png",
+			imgBulletBlast[3].getwidth() * k,
+			imgBulletBlast[3].getheight() * k, true);
+		//loadimage()
+		initgraph(SCREEN_WIDTH, SCREEN_HIGH);
+		LOGFONT f;
+		gettextstyle(&f);                     // 获取当前字体设置
+		f.lfHeight = 30;                      // 设置字体高度为 48
+		f.lfWidth = 15;
+		strcpy_s(f.lfFaceName, "Segoe UI Black");
+		f.lfQuality = ANTIALIASED_QUALITY;    // 设置输出效果为抗锯齿  
+		settextstyle(&f);                     // 设置字体样式
+		setbkmode(TRANSPARENT);
+		setcolor(BLACK);
 
+		//mciSendString("play res/bg.mp3 repeat", 0, 0, 0);
+
+
+	}
 }
-
 void createSunshine() {
 	int ballMax = sizeof(s) / sizeof(s[0]);
 
@@ -375,6 +389,78 @@ void curplant()
 	}
 
 }
+void insertzombie();
+void createZombie()
+{
+	static int zmFre = 500;
+	static int count = 0;
+	count++;
+	if (count > zmFre) {
+		insertzombie();
+	}
+
+
+	while (zp->next != NULL)
+	{
+		zp->row = rand() % 5;
+		zp->x = GARDEN_WIDTH;
+		zp->y = 90 + (1 + zp->row) * 95;
+		zp->speed = 1;
+		zp = zp->next;
+		//根据僵尸坐标计算格子
+		int i = 0, j = 0;
+	}
+}
+void updateZM() {
+	Zombie* zb = (Zombie*)malloc(sizeof(Zombie));
+	Zombie* z = (Zombie*)malloc(sizeof(Zombie));
+	z = zb = zp;
+	while (zb != NULL)
+	{
+		if(zb->isAtk ==0)
+		zb->x -= zb->speed;
+		
+		/*if (zb->HP <= 0)
+		{
+			z->next = zp->next;
+			zombie_num[1]--;  //中括号里填这是第几关（每关僵尸数目不同）
+			free(zb);
+			zp = zb->next;
+		}*/
+		zb = zb->next;
+	}
+	
+
+	static int count = 0;
+	count++;
+	if (count > 4) {
+		count = 0;
+		while (z->next != NULL)
+		{
+			zp->frame = (zp->frame + 1) % 22;
+		}
+	}
+}
+void drawZombie() {
+	Zombie* zb = (Zombie*)malloc(sizeof(Zombie));
+	zb = zp;
+	while (zb->next != NULL)
+	{
+		IMAGE* img = &imgzombies[zb->ID][zb->frame];
+		int x = zb->x;
+		int y = zb->y;
+		putimagePNG(x, y, img);
+		if (zb->HP < 50)
+		{
+			//putimage()
+		}
+		if (zb->HP <= 0)
+		{
+			//putimage()
+		}
+	}
+
+}
 void window_updata()
 {
 	BeginBatchDraw();
@@ -395,6 +481,7 @@ void window_updata()
 		}
 	}
 	curplant();
+	drawZombie();
 	
 	char scoreText[8];
 	sprintf_s(scoreText, sizeof(scoreText), "%d", sun);
@@ -406,7 +493,9 @@ void game_creat_updata()
 {
 	createSunshine();
 	updataSunshine();
-	
+	createZombie();
+	updateZM();
+
 
 }
 int main()

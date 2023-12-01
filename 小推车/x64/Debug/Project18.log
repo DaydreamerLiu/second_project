@@ -1,0 +1,6 @@
+﻿  tools.cpp
+D:\班奈\代码\小推车\tools.cpp(90,11): warning C4244: “初始化”: 从“unsigned __int64”转换到“int”，可能丢失数据
+  源.cpp
+D:\班奈\代码\小推车\源.cpp(61,14): warning C4553: “==”: 未使用表达式结果；是否打算使用“=”?
+  正在生成代码...
+  Project18.vcxproj -> D:\班奈\代码\小推车\x64\Debug\Project18.exe

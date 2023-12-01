@@ -1,0 +1,5 @@
+﻿  tools.cpp
+D:\班奈\代码\Project13\tools.cpp(90,11): warning C4244: “初始化”: 从“unsigned __int64”转换到“int”，可能丢失数据
+  源.cpp
+  正在生成代码...
+  Project13.vcxproj -> D:\班奈\代码\Project13\x64\Debug\Project13.exe

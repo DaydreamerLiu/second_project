@@ -1,6 +1,14 @@
 #include"state.h"
 
 void gameinit() {
+	stc.x = 30; stc.y = 500;//小车1
+	stc.x1 = 30; stc.y1 = 405;//小推车2坐标
+	stc.x2 = 30; stc.y2 = 310;//小车3
+	stc.x3 = 30; stc.y3 = 205;//小车4
+	stc.x4 = 30; stc.y4 = 110;//小车5
+	loadimage(&tc, "cpzb/xtc.png");//加载推车图片
+	loadimage(&tc1, "cpzb/xtc.png"); loadimage(&tc3, "cpzb/xtc.png");//加载对应小车
+	loadimage(&tc2, "cpzb/xtc.png"); loadimage(&tc4, "cpzb/xtc.png");
 	//地图
 	loadimage(&g[0], _T("./imgs/map/garden.jpg"), GARDEN_WIDTH, GARDEN_HIGH);
 	//组件
@@ -10,15 +18,55 @@ void gameinit() {
 	//卡片文件
 	loadimage(&c[0][0], _T("./cpzb/c0.png"), CARDS_WIDTH, CARDS_HIGH);
 	loadimage(&c[0][1], _T("./cpzb/c0_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+
+
 	loadimage(&c[1][0], _T("./cpzb/c1.png"), CARDS_WIDTH, CARDS_HIGH);
 	loadimage(&c[1][1], _T("./cpzb/c1_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+
 	loadimage(&c[2][0], _T("./cpzb/c2.png"), CARDS_WIDTH, CARDS_HIGH);
 	loadimage(&c[2][1], _T("./cpzb/c2_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+
 	loadimage(&c[3][0], _T("./cpzb/c3.png"), CARDS_WIDTH, CARDS_HIGH);
 	loadimage(&c[3][1], _T("./cpzb/c3_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+
 	loadimage(&c[4][0], _T("./cpzb/c4.png"), CARDS_WIDTH, CARDS_HIGH);
 	loadimage(&c[4][1], _T("./cpzb/c4_cd.png"), CARDS_WIDTH, CARDS_HIGH);
 
+	//车子图片以及信息
+	car[0].isAtk = 0;
+	car[0].isUsed = 0;
+	car[0].isPrint = 1;
+	car[0].x = 50;
+	car[0].y = 115;
+	loadimage(&car[0].img, _T("./cpzb/xtc.png"));
+
+	car[1].isAtk = 0;
+	car[1].isUsed = 0;
+	car[1].isPrint = 1;
+	car[1].x = 50;
+	car[1].y = 210;
+	loadimage(&car[0].img, _T("./cpzb/xtc1.png"));
+
+	car[2].isAtk = 0;
+	car[2].isUsed = 0;
+	car[2].isPrint = 1;
+	car[2].x = 50;
+	car[2].y = 305;
+	loadimage(&car[0].img, _T("./cpzb/xtc2.png"));
+
+	car[3].isAtk = 0;
+	car[3].isUsed = 0;
+	car[3].isPrint = 1;
+	car[3].x = 50;
+	car[3].y = 400;
+	loadimage(&car[0].img, _T("./cpzb/xtc3.png"));
+
+	car[4].isAtk = 0;
+	car[4].isUsed = 0;
+	car[4].isPrint = 1;
+	car[4].x = 50;
+	car[4].y = 495;
+	loadimage(&car[0].img, _T("./cpzb/xtc4.png"));
 	//植物僵尸信息
 
 		//植物:
@@ -88,7 +136,7 @@ void gameinit() {
 	loadimage(&zombiein[0].img[3][0], _T("./cpzb/z007.png"));
 	loadimage(&zombiein[0].img[3][1], _T("./cpzb/z008.png"));
 	//护甲僵尸 图片规则如上
-	zombiein[1].ID = 2;
+	zombiein[1].ID = 1;
 	zombiein[1].HP = 420;
 	zombiein[1].Atk = 10;
 	zombiein[1].speed = 2;
@@ -104,12 +152,12 @@ void gameinit() {
 	loadimage(&zombiein[1].img[3][0], _T("./cpzb/z017.png"));
 	loadimage(&zombiein[1].img[3][1], _T("./cpzb/z018.png"));
 	//绿尸寒坤坤 ee
-	zombiein[2].ID = 4;
+	zombiein[2].ID = 2;
 	zombiein[2].HP = 350;
 	zombiein[2].Atk = 15;
 	zombiein[2].speed = 3;
 	zombiein[2].cost = 100;
-	zombiein[2].buff = 999;	//buff999时攻击伤害为10000,在check里使用
+	zombiein[2].buff = 0;	//buff999时攻击伤害为10000,在check里使用
 	zombiein[2].danmage_point = 125;
 	loadimage(&zombiein[2].img[0][0], _T("./cpzb/z031.png"));
 	loadimage(&zombiein[2].img[0][1], _T("./cpzb/z032.png"));
@@ -126,7 +174,7 @@ void gameinit() {
 	loadimage(&zombiein[2].img[5][1], _T("./cpzb/z0024.png"));
 
 	//丁真8
-	zombiein[3].ID = 6;
+	zombiein[3].ID = 3;
 	zombiein[3].HP = 370;
 	zombiein[3].Atk = 15;
 	zombiein[3].speed = 2;
@@ -144,20 +192,68 @@ void gameinit() {
 
 }
 
-void game_view() {
+void gameview() {
+	printf("正式开始游戏\n");
 	BeginBatchDraw();
+	Lz = initlist_z();
+	
+	clock_t startime = clock();
+	int sun_box = 50;
+	int pause = 0;
+	initplant();
 	while (true)
 	{
+		LinkList_z zp = Lz;
+		cleardevice();
+		clock_t Now_t = clock();
+		clock_t wait = Now_t - startime;
+		if ((int)wait >= 5000 &&Timer(18000,99))
+		{
+			zombie_creat();
+		}
+		
+		plant();
+		_check(Lz);
+		zombie_act(Lz);
 		putimage(garden.x, garden.y, &g[0]);
+
 		putimage(0, 0, &s[1]);
 		setbkmode(TRANSPARENT);
 		settextstyle(25, 0, "微软雅黑");
-		outtextxy(28, 58, _T("50"));
+		char s[5];
+		sprintf_s(s, sizeof(s), "%d", sun_box);
+		outtextxy(28, 58, s);
 		for (int i = 0; i < Lb.size; i++)
 		{
 			putimage(82 + CARDS_WIDTH * i, 5, &c[Lb.id[i]][0]);
 		}
+
+		putimagePNG(stc.x, stc.y, &tc);//打印图片
+		putimagePNG(stc.x1, stc.y1, &tc1);
+		putimagePNG(stc.x2, stc.y2, &tc2);
+		putimagePNG(stc.x3, stc.y3, &tc);
+		putimagePNG(stc.x4, stc.y4, &tc);
+		const int frameDlay = 1000 / 60;
+		int frameStart = 0;
+		int frameTime = 0;
+		int index = 0;
+	
+		while (zp->next != NULL)
+		{
+			zp = zp->next;				//Lz是头指针 没有数据 所以要往下走找数据
+			int i = zp->isAtk * 2 + (1 - zp->hp / zombiein[zp->ID].HP);
+			int j = zp->buff;
+			zp->x = zp->x - 1;
+			drawImg(zp->x, zp->y, 58, 91, &zombiein[zp->ID].img[i][0], zp->index * 64, 0);	//画不出来……………………
+			frameStart = clock();
+			zp->index = (clock() / 200) % frameStart % 9;
+			frameTime = clock() - frameStart;
+		}
+		Sleep(80);
+		
+		FlushBatchDraw();
 	}
+	EndBatchDraw();
 }
 
 //开始前的动画和携带的植物的选择
@@ -201,9 +297,10 @@ void Star_game_view() {
 	}
 	printf("\n");
 	EndBatchDraw();
+	gameview();
 }
 void plants_choose_view() {
-
+	printf("开始选择植物\n");
 	Lb = initAarry(8);//初始化背包植物的线性表
 	while (1)
 	{
@@ -291,12 +388,14 @@ void plants_choose_view() {
 			//跳出操作
 			if (m.x > 150 && m.x < 304 && m.y>548 && m.y < 585)
 			{
+				
 				break;
 			}
 		}
 
 		FlushBatchDraw();
 	}
+	printf("选择植物结束 准备开始游戏\n");
 }
 void text() {
 	for (int i = 0; i < 10; i++)
@@ -309,47 +408,20 @@ void text() {
 	}
 	FlushBatchDraw();
 }
-void zombie_creat_time(clock_t startime) {
 
-	clock_t nowtime = clock();
-	long interbal = nowtime - startime;
-	static int i = 1;
-	if (interbal == 5000 && i == 1)
-	{
-		printf("%ld %ld\t第%d波\n", startime, nowtime, i);
-		zombie_creat();
-		i++;
-	}
-	if (interbal == 10000 && i == 2)
-	{
-		printf("%ld %ld\t第%d波\n", startime, nowtime, i);
-		zombie_creat();
-		i++;
-	}
-	if (interbal == 15000 && i == 3)
-	{
-		printf("%ld %ld\t第%d波\n", startime, nowtime, i);
-		zombie_creat();
-		i++;
-	}
-	if (interbal == 20000 && i == 4)
-	{
-		printf("%ld %ld\t第%d波\n", startime, nowtime, i);
-		zombie_creat();
-		i++;
-	}
-	if (interbal == 25000 && i == 5)
-	{
-		printf("%ld %ld\t第%d波\n", startime, nowtime, i);
-		zombie_creat();
-		i++;
-	}
-}
 
 void zombie_creat() {
 	srand((unsigned int)time(NULL));
-
-	static int id = 1;
+	int l = 0;
+	if (level==5)
+	{
+		l = 4;
+	}
+	else
+	{
+		l = level;
+	}
+	int id = rand() % l;
 	int ret = rand() % 5 + 1;
 	int x = 0, y = 0;
 	switch (ret)
@@ -357,30 +429,34 @@ void zombie_creat() {
 	case 1:
 		x = 900;
 		y = 90;
+		Lz = add(Lz, id, x, y);
 		break;
 	case 2:
 		x = 900;
 		y = 185;
+		Lz = add(Lz, id, x, y);
 		break;
 	case 3:
 		x = 900;
 		y = 280;
+		Lz = add(Lz, id, x, y);
 		break;
 	case 4:
 		x = 900;
 		y = 375;
+		Lz = add(Lz, id, x, y);
 		break;
 	case 5:
 		x = 900;
 		y = 460;
+		Lz = add(Lz, id, x, y);
 		break;
 	default:
 		break;
 	}
-	Lz = add(Lz, id, x, y);
+	
 	print(Lz);
 	printf("在第%d路\n\n", ret);
-	id++;
 }
 
 /*检查各个单位
@@ -477,12 +553,12 @@ void _check(LinkList_z Znode)	//传入植物、僵尸、子弹的头结点(为空的头结点)
 
 		//是否触发僵尸攻击
 		if (i >= 0)
-			if (inner_game_map[i][j] != 0)
+			if (inner_game_map[i][j].flag != 0)
 				zp->isAtk = 1;
 			else zp->isAtk = 0;
 
 		//触发小车
-		if (zp->x <= 128)
+		if (zp->x <= 128 && car[j].isUsed != 1)
 			car[j].isAtk = 1;
 
 		if (zp->x < 88);
@@ -496,10 +572,10 @@ void _check(LinkList_z Znode)	//传入植物、僵尸、子弹的头结点(为空的头结点)
 	{
 		if (zombie_num[j] > 0)
 			for (int i = 0; i < 9; i++)
-				inner_game_map[i][j]->Info->isAtk = 1;
+				inner_game_map[i][j].Info.isAtk = 1;
 		else
 			for (int i = 0; i < 9; i++)
-				inner_game_map[i][j]->Info->isAtk = 0;
+				inner_game_map[i][j].Info.isAtk = 0;
 	}
 
 	//遍历数组判断植物是否死亡
@@ -508,9 +584,9 @@ void _check(LinkList_z Znode)	//传入植物、僵尸、子弹的头结点(为空的头结点)
 		for (int j = 0; j < 5; j++)
 		{
 			/*if (inner_game_map[i][j]->flag == 0)*/
-			if (inner_game_map[i][j]->number = 0)		////？？？？？？？？？？什么意思 赋值？判断？
-				if (inner_game_map[i][j]->Info->hp <= 0)
-					inner_game_map[i][j]->flag = 0, inner_game_map[i][j]->number = 0;
+			if (inner_game_map[i][j].number = 0)		////？？？？？？？？？？什么意思 赋值？判断？
+				if (inner_game_map[i][j].Info.hp <= 0)
+					inner_game_map[i][j].flag = 0, inner_game_map[i][j].number = 0;
 
 		}
 	}
@@ -525,16 +601,17 @@ void _check(LinkList_z Znode)	//传入植物、僵尸、子弹的头结点(为空的头结点)
 	*若无以上 则向前行动
 2、改变加载的图片文件
 */
-void zombie_act(LinkList_z Znode)
+void zombie_act(LinkList_z Zonode)
 {
-	LinkList_z zp = Znode;
+	LinkList_z zp = Zonode;
 	int atk = 0;
 	while (zp->next != NULL)
 	{
+		zp = zp->next;
 		if (zp->isAtk == 1)//记录攻击力
 		{
 			double atk = zombiein[zp->ID].Atk;
-			if (zp->buff==1)
+			if (zp->buff == 1)
 			{
 				atk *= 0.75;
 			}
@@ -543,79 +620,36 @@ void zombie_act(LinkList_z Znode)
 
 			//根据僵尸坐标计算格子
 			int i = 0, j = 0;
-			switch ((zp->y - 90) / 95)
-			{
-			case 1:
-				j = 0;
-				break;
-			case 2:
-				j = 1;
-				break;
-			case 3:
-				j = 2;
-				break;
-			case 4:
-				j = 3;
-				break;
-			case 5:
-				j = 4;
-				break;
+			j = ((zp->y - 90) / 95) - 1;
+
+			if (zp->x > 128) {
+				i = ((zp->x - 128) / 81) - 1;
 			}
-			if (zp->x > 128)
-				switch ((zp->x - 128) / 81)
-				{
-				case 1:
-					i = 0;
-					break;
-				case 2:
-					i = 1;
-					break;
-				case 3:
-					i = 2;
-					break;
-				case 4:
-					i = 3;
-					break;
-				case 5:
-					i = 4;
-					break;
-				case 6:
-					i = 5;
-					break;
-				case 7:
-					i = 6;
-					break;
-				case 8:
-					i = 7;
-					break;
-				case 9:
-					i = 8;
-					break;
-				default:
-					i = -1;
-				}
 			//被攻击植物扣血
-			inner_game_map[i][j]->Info->hp -= atk;
+			inner_game_map[i][j].Info.hp -= atk;
 		}
-		else zp->speed = zombiein[zp->ID].speed;//不攻击时运动
-		//僵尸运动
-		zp->x -= zp->speed;
+		
 		////改变图片
 		//if (zp->hp <= zombiein[zp->ID].danmage_point);
-
-
+		const int frameDlay = 1000 / 60;
+		int frameStart = 0;
+		int frameTime = 0;
+		int index = 0;
+		frameStart = clock();
+		
 	}
 }
+
 
 void initplant() {
 	for (int i = 0; i < 9; i++)
 	{
 		for (int j = 0; j < 5; j++)
 		{
-			inner_game_map[i][j]->number = 0;
-			inner_game_map[i][j]->flag = 0;
-			inner_game_map[i][j]->Info->x = 128 + 81 * i;
-			inner_game_map[i][j]->Info->y = 90 + 95 * j;
+			inner_game_map[i][j].number = 0;
+			inner_game_map[i][j].flag = 0;
+			inner_game_map[i][j].Info.x = 128 + 81 * i;
+			inner_game_map[i][j].Info.y = 90 + 95 * j;
 		}
 	}
 }
@@ -631,7 +665,7 @@ void plant() {
 	if (peekmessage(&msg, EX_MOUSE))//当有鼠标操作
 	{
 
-		if (WM_LBUTTONDOWN)//当接收到鼠标左键点击时进入循环
+		if (msg.message==WM_LBUTTONDOWN)//当接收到鼠标左键点击时进入循环
 		{
 
 			//识别是否点击植物栏
@@ -639,25 +673,9 @@ void plant() {
 			* 2.该植物的cd是否好了
 			*/
 			clock_t click_time = clock();
-			for (int i = 0; i < 10; i++)
-			{
-				if (msg.y > 0 && msg.y < CARDS_HIGH)         //位置？？？？？？？？？？
-				{
-					if (msg.x > 86 + 55.5 * i + (55.5 - CARDS_WIDTH) && msg.x < 86 + 55.5 * (i + 1) - (55.5 - CARDS_WIDTH))
-					{
-						if (click_time - Lb.plant_time[i] > plantin[Lb.id[i]].cd)
-						{
-							pick = i;//pick为选择栏的选择的植物的序号
-						}
-
-					}
-				}
-
-			}
-			//判断鼠标选择的草皮的位置
 			for (int i = 0; i < 9; i++)
 			{
-				if (pick==-1)
+				if (pick == -1)
 				{
 					break;
 				}
@@ -669,63 +687,80 @@ void plant() {
 						{
 							if (msg.y > 90 + 95 * i && msg.y < 90 + 95 * (i + 1))
 							{
-								if (inner_game_map[i][j]->flag == 0)
+								if (inner_game_map[i][j].flag == 0)
 								{
-									inner_game_map[i][j]->flag = 1;
-									inner_game_map[i][j]->number = pick; /*顺序表的植物位置*/
-									inner_game_map[i][j]->id = Lb.id[pick];
+									inner_game_map[i][j].flag = 1;
+									inner_game_map[i][j].number = pick; /*顺序表的植物位置*/
+									inner_game_map[i][j].id = Lb.id[pick];
 									//1.放置后的植物进入cd状态
 									//暂时不知道怎么写。。。
 									Lb.plant_time[pick] = clock();
 
 									//添加已种植的植物信息
-									inner_game_map[i][j]->Info->ID = Lb.id[pick];
-
+									inner_game_map[i][j].Info.ID = Lb.id[pick];
+									printf("已成功添加%d号植物 id=%d 在%d,%d\n", pick, Lb.id[i], i, j);
 									if (SetHp_Judge == 1)
 									{
 										//下面这句怎么写？？？怎么根据ID去找对应的植物的hp？？？
-										inner_game_map[i][j]->Info->hp = plantin[i].HP;//顺序表第n个的对应植物的总hp值
-
-
-
+										inner_game_map[i][j].Info.hp = plantin[i].HP;//顺序表第n个的对应植物的总hp值
 
 										SetHp_Judge == 0;//使种下的植物的初始hp只定义一次（此处若直接static hp会在植物死掉后再在此地种植时出问题，故我目前选择这么操作）
 									}
 									//选择的植物pick状态取消
 									pick = -1;
+									break;
 								}
 
-								else if (inner_game_map[i][j]->flag != 0)
+								else if (inner_game_map[i][j].flag != 0)
 								{
 									pick = -1;
-
+									break;
 								}
 							}
+
 						}
 
 					}
 				}
-				
+
 			}
+			for (int i = 0; i < Lb.size; i++)
+			{
+				if (msg.y > 0 && msg.y < CARDS_HIGH)         //位置？？？？？？？？？？
+				{
+					if (msg.x > 86 + 55.5 * i + (55.5 - CARDS_WIDTH) && msg.x < 86 + 55.5 * (i + 1) - (55.5 - CARDS_WIDTH))
+					{
+						if (click_time - Lb.plant_time[i] > plantin[Lb.id[i]].cd)
+						{
+							pick = i;//pick为选择栏的选择的植物的序号
+							printf("已选择%d号植物 id=%d\n", i, Lb.id[i]);
+						}
+
+					}
+				}
+
+			}
+			//判断鼠标选择的草皮的位置
+			
 		}
 
 
 	}
 
 	//将草皮格子中处于空地状态的信息标为0  
-	for (int i = 0; i < 9; i++)
+	/*for (int i = 0; i < 9; i++)
 	{
 		for (int j = 0; j < 5; j++)
 		{
-			if (inner_game_map[i][j]->flag == 0)
+			if (inner_game_map[i][j].flag == 0)
 			{
-				inner_game_map[i][j]->number = 0;
-				inner_game_map[i][j]->Info->ID = -1;
-				inner_game_map[i][j]->Info->hp = 0;
+				inner_game_map[i][j].number = 0;
+				inner_game_map[i][j].Info.ID = -1;
+				inner_game_map[i][j].Info.hp = 0;
 				SetHp_Judge = 1;
 			}
 		}
-	}
+	}*/
 
 
 }
@@ -1331,55 +1366,195 @@ void Levle_choose_view()
 	}
 	EndBatchDraw();
 	Star_game_view();
+	
 }
 
-
+//void createSunshine() {
+//	int ballMax = sizeof(s) / sizeof(s[0]);
 //
-//int main()
+//	static int SunCount = 0;
+//	static int count = 400;
+//	SunCount++;
+//	if (SunCount >= count) {
+//		count = 200 + rand() % 200;
+//		SunCount = 0;
+//		int i;
+//		for (i = 0; i < ballMax && balls[i].isused; i++);
+//		if (i >= ballMax) return;
+//
+//		balls[i].isused = 1;
+//		balls[i].frame = 0;
+//		balls[i].x = 125 + rand() % (905 - 260);
+//		balls[i].y = 60;
+//		balls[i].desty = 180 + (rand() % 4) * 90 + 20;
+//		balls[i].timer = 0;
+//	}
+//}
+//void updataSunshine()
 //{
-//	initgraph(SCREEN_WIDTH, SCREEN_HIGH);
-//	gameinit();
-//	BeginBatchDraw();
-//	main_menu();
-//	EndBatchDraw();
-//	return 0;
+//	int ballmax = sizeof(s) / sizeof(s[0]);
+//	int i = 0;
+//	for (i; i < ballmax; i++)
+//	{
+//		if (balls[i].isused == 1)
+//		{
+//			balls[i].frame++;
+//			if (balls[i].frame == 29)
+//			{
+//				balls[i].frame = 0;
+//			}
+//			if (balls[i].y > balls[i].desty)
+//			{
+//				balls[i].timer++;
+//				if (balls[i].timer > 200)
+//				{
+//					balls[i].isused = 0;
+//
+//				}
+//			}
+//			if (balls[i].timer == 0)
+//			{
+//				balls[i].y += 2;
+//			}
+//		}
+//	}
+//}
+//void collectSunshine(ExMessage* msg) {
+//	int count = sizeof(s) / sizeof(s[0]);
+//	int w = shine[0].getwidth();
+//	int h = shine[0].getheight();
+//	for (int i = 0; i < count; i++) {
+//		if (balls[i].isused) {
+//			int x = balls[i].x;
+//			int y = balls[i].y;
+//			if (msg->x > x && msg->x < x + w && msg->y > y && msg->y < y + h) {
+//				balls[i].isused = 0;
+//				sun += 25;
+//				mciSendString("play res/sunshine.mp3", 0, 0, 0);
+//			}
+//		}
+//	}
 //}
 
-int main() {
-	const int frameDlay = 1000 / 60;
-	int frameStart = 0;
-	int frameTime = 0;
-	int index = 0;
-
+int main()
+{
 	initgraph(SCREEN_WIDTH, SCREEN_HIGH);
 	gameinit();
 	BeginBatchDraw();
-	while (true)
-	{
-		
-		frameStart = clock();
-		
-		cleardevice();
-
-		putimage(garden.x, garden.y, &g[0]);
-		drawImg(200, 250, 64, 95, &zombiein[0].img[0][0], index * 64, 0);
-		drawImg(200, 150,70, 71, &plantin[4].img, index * 64, 0);
-
-		
-
-		index = (clock() / 200) % frameStart % 9;
-
-		frameTime = clock() - frameStart;
-		if (frameDlay - frameTime > 0)
-		{
-			Sleep(frameDlay - frameTime);
-		}
-		FlushBatchDraw();
-	}
+	main_menu();
 	EndBatchDraw();
-	closegraph();
 	return 0;
 }
+
+//int main() {
+//	
+//	initgraph(SCREEN_WIDTH, SCREEN_HIGH);
+//	gameinit();
+//	BeginBatchDraw();
+//	Lz = initlist_z();
+//
+//	while (true) {
+//		cleardevice();
+//		/*putimage(garden.x, garden.y, &g[0]);*/
+//		LinkList_z zp = Lz;
+//		if (Timer(5000, 50))
+//		{
+//			srand((unsigned int)time(NULL));
+//			int id = rand() % 5;
+//			int ret = rand() % 5 + 1;
+//			int x = 0, y = 0;
+//			switch (ret)
+//			{
+//			case 1:
+//				x = 700;
+//				y = 90;
+//				Lz = add(Lz, id, x, y);
+//				break;
+//			case 2:
+//				x = 700;
+//				y = 185;
+//				Lz = add(Lz, id, x, y);
+//				break;
+//			case 3:
+//				x = 700;
+//				y = 280;
+//				Lz = add(Lz, id, x, y);
+//				break;
+//			case 4:
+//				x = 700;
+//				y = 375;
+//				Lz = add(Lz, id, x, y);
+//				break;
+//			case 5:
+//				x = 700;
+//				y = 460;
+//				Lz = add(Lz, id, x, y);
+//				break;
+//			default:
+//				break;
+//			}
+//
+//			print(Lz);
+//			printf("在第%d路\n\n", ret);
+//			
+//		}
+//		const int frameDlay = 1000 / 60;
+//		int frameStart = 0;
+//		int frameTime = 0;
+//		int index = 0;
+//		int n = 1;
+//		while (zp->next != NULL)
+//		{
+//
+//			zp = zp->next;
+//			int i = zp->isAtk * 2 + (1 - zp->hp / zombiein[zp->ID].HP);
+//			int j = zp->buff;
+//			zp->x = zp->x - 1;
+//			drawImg(zp->x, zp->y, 64, 95, &zombiein[zp->ID].img[i][0], zp->index * 64, 0);
+//			frameStart = clock();
+//			zp->index = (clock() / 200) % frameStart % 9;
+//			frameTime = clock() - frameStart;
+//			
+//			n++;
+//		}
+//		Sleep(50);
+//		putimagePNG(stc.x, stc.y, &tc);//打印图片
+//		putimagePNG(stc.x1, stc.y1, &tc1);	
+//		putimagePNG(stc.x2, stc.y2, &tc2);
+//		putimagePNG(stc.x3, stc.y3, &tc); 
+//		putimagePNG(stc.x4, stc.y4, &tc);
+//		
+//
+//		FlushBatchDraw();
+//	}
+//	EndBatchDraw();
+//	closegraph();
+//	return 0;
+//}
+
+//int main() {
+//	initgraph(SCREEN_WIDTH, SCREEN_HIGH);
+//	const int frameDlay = 1000 / 60;
+//	int frameStart = 0;
+//	int frameTime = 0;
+//	int index = 0;
+//	{
+//
+//		frameStart = clock();
+//		if (Timer(800, 4))
+//		{
+//			cleardevice();
+//			index = (clock() / 200) % frameStart % 9;
+//		}
+//		putimage(garden.x, garden.y, &g[0]);
+//		drawImg(200, 250, 64, 95, &zombiein[0].img[0][0], index * 64, 0);
+//		drawImg(200, 150, 70, 71, &plantin[0].img, index * 64, 0);
+//		FlushBatchDraw();
+//	}
+//	EndBatchDraw();
+//	closegraph();
+//	return 0;
+//}
 
 
 

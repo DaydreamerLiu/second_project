@@ -19,6 +19,7 @@
 #define CARDS_WIDTH 53.3
 #define CARDS_HIGH 75
 //用这个变量level记录当前关卡 功能：打印对应的地图 调用对应的通关奖励和应对的僵尸
+int pick = -1;
 int level = 0;
 int zombie_num[5] = { 0 };
 
@@ -28,8 +29,9 @@ IMAGE g[5];
 IMAGE s[50];
 
 IMAGE c[5][2];
-
-
+IMAGE tc;
+IMAGE tc1; IMAGE tc2;//推车图片
+IMAGE tc3; IMAGE tc4;
 //加载地图的数据结构
 typedef struct map {
 	int x;
@@ -83,10 +85,15 @@ Bag initAarry(int n)
 {
 	Bag ar;
 	ar.id = (int*)malloc(sizeof(int) * n);
-	ar.plant_time = (int*)malloc(sizeof(int) * n);
-	if (ar.id == NULL || ar.plant_time == NULL)
+	
+	if (ar.id == NULL)
 	{
-		printf("空间分配失败\n");
+		printf("id空间分配失败\n");
+	}
+	ar.plant_time = (int*)malloc(sizeof(int) * n);
+	if (ar.plant_time == NULL)
+	{
+		printf("ti空间分配失败\n");
 	}
 	ar.length = n;
 	ar.size = 0;
@@ -98,7 +105,7 @@ void add(Bag* a, int k)
 	if (a->size < a->length)
 	{
 		a->id[a->size] = k;
-		a->plant_time = 0;
+		a->plant_time[a->size] = 0;
 		a->size++;
 	}
 	else {
@@ -129,12 +136,25 @@ int find(Bag* a, int k)
 //游戏进行时的实体信息
 typedef struct cars
 {
+	int isUsed;		//是否使用过
 	int isAtk;      //是否攻击
+	int isPrint;
 	int x;
 	int y;
-
+	IMAGE img;
 }Cars;
 Cars car[5];
+
+struct STC//小推车结构体
+{
+	int x, y;
+	int x1, y1;
+	int x2, y2;
+	int x3, y3; int x4, y4;
+
+	int speed;
+};
+struct STC stc;
 
 typedef struct plants
 {
@@ -143,9 +163,9 @@ typedef struct plants
 	int isAtk;      //是否攻击
 	int x;
 	int y;
-	struct plants* next;
+
 }Plants;
-typedef struct plants* LinkList_p;
+
 
 typedef struct zombie
 {
@@ -155,6 +175,7 @@ typedef struct zombie
 	int star_time;   //buff效果的计时器 （用于计时消除buff效果）
 	int buff;		//僵尸受到的负面影响
 	int isAtk;       //是否攻击
+	int index;
 	int x;
 	int y;			//僵尸坐标
 	struct zombie* next;
@@ -163,29 +184,17 @@ typedef struct zombie
 typedef struct zombie* LinkList_z;
 LinkList_z Lz;
 
-LinkList_p initlist_p()
-{
-	LinkList_p Lp = (plants*)malloc(sizeof(plants));
-	if (Lp == NULL)
-	{
-		printf("分配失败\n");
-	}
-	else {
-		Lp->next = NULL;
-	}
-	return Lp;
-}
 LinkList_z initlist_z()
 {
-	LinkList_z Lz = (zombie*)malloc(sizeof(zombie));
-	if (Lz == NULL)
+	LinkList_z lz = (zombie*)malloc(sizeof(zombie));
+	if (lz == NULL)
 	{
 		printf("分配失败\n");
 	}
 	else {
-		Lz->next = NULL;
+		lz->next = NULL;
 	}
-	return Lz;
+	return lz;
 }
 LinkList_z add(LinkList_z head, int id, int x, int y)
 {
@@ -197,6 +206,12 @@ LinkList_z add(LinkList_z head, int id, int x, int y)
 	else
 	{
 		s->ID = id;
+		s->hp = zombiein[s->ID].HP;
+		s->star_time = clock();
+		s->buff = 0;
+		s->isAtk = 0;
+		s->index = 0;
+		s->speed = zombiein[s->ID].speed;
 		s->x = x;
 		s->y = y;
 		s->next = head->next;
@@ -218,9 +233,9 @@ typedef struct pplant_in_map {
 	int id;
 	int number;//用于表示是第几个选择的植物，0为空，其他数字n为上方选择栏的第n个植物
 	int flag;//用于表示是否可以放置植物，0为可以放置，1为已有植物（南瓜头那种可重叠放置的植物以后优化再弄）
-	Plants* Info;
+	Plants Info;
 }plant_in_map;
-plant_in_map* inner_game_map[9][5];
+plant_in_map inner_game_map[9][5];
 
 
 //计时器 （接受输入两个int类型整数，前一个为时间间隔，单位为毫秒，后一个是计时器ID）
@@ -305,7 +320,7 @@ void Star_game_view();
 	* 铲子
 2、调用service中支持游戏进行的函数
 */
-void game_view() {
+void gameview();
 	/*1、按顺序打印以下：
 		* 地图背景
 		* 窗口组件
@@ -319,7 +334,7 @@ void game_view() {
 		zombie_act();
 		plants_act();
 		bullet_act();*/
-}
+
 /*失败页面
 负责人：
 功能：展示失败动画和音效
@@ -381,7 +396,7 @@ void plants_choose_view();
 3、种植成功后标记对应区域为不可种植
 */
 void plant();
-
+void initplant();
 
 
 /*检查各个单位
@@ -394,7 +409,7 @@ void plant();
 3、按 .buff 作不同反应
 5、对应该消失的节点进行删除
 */
-void _check();
+void _check(LinkList_z Znode);
 
 
 /*僵尸行为以及动画加载
@@ -409,8 +424,8 @@ void _check();
 2、改变加载的图片文件
 
 */
-void zombie_act();
-
+void zombie_act(LinkList_z Zonode);
+void zombie_creat_time(clock_t startime);
 /*植物行为以及动画加载
 负责人：舸学
 功能：

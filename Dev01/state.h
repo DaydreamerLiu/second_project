@@ -24,14 +24,10 @@ int zombie_num[5] = { 0 };
 
 //地图素材变量组
 IMAGE g[5];
-//植物素材变量组
-IMAGE p[100];
-//僵尸素材变量组
-IMAGE z[100];
 //窗口素材组
 IMAGE s[50];
 
-IMAGE c[50];
+IMAGE c[5][2];
 
 
 //加载地图的数据结构
@@ -59,8 +55,9 @@ typedef struct plant_in
 	int cost;		//购买花费
 	int PT;			//种植后生效时间（比如土豆地雷1500）
 	int danmage_point;//破损点
+	IMAGE img;
 }Plants_in;
-Plants_in plants_in [100] ;
+Plants_in plantin [5] ;
 typedef struct zombie_in
 {
 	int ID;			//物品ID
@@ -69,8 +66,11 @@ typedef struct zombie_in
 	int speed;		//原始速度
 	int cost;		//购买花费(小游戏模式可能需要)
 	int danmage_point;//破损点
+	int buff;
+
+	IMAGE img[6][2];
 }Zombie_in;
-Zombie_in zombiein[100];
+Zombie_in zombiein[4];
 
 typedef struct bag {
 	int* id;//指针模拟开数组 
@@ -105,7 +105,6 @@ void add(Bag* a, int k)
 		printf("空间已满，不能插入\n");
 	}
 }
-
 //在顺序表a中删除元素k 
 void del(Bag* a, int i)
 {
@@ -127,14 +126,6 @@ int find(Bag* a, int k)
 	}
 	return 1;
 }
-/****************     在此写入数据设计     *****************/
-
-
-
-/***********************************************************/
-
-
-
 //游戏进行时的实体信息
 typedef struct cars
 {
@@ -252,7 +243,7 @@ int Timer(int duration, int id) {
 
 //图片文件预加载  放在其他代码前方
 //按各自函数需要取用
-void InitImages();
+void game_init();
 
 /*登录界面
 负责人：晚风

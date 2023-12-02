@@ -1,31 +1,163 @@
 #include"state.h"
 
-void InitImages() {
+void gameinit() {
 	//地图
 	loadimage(&g[0], _T("./imgs/map/garden.jpg"), GARDEN_WIDTH, GARDEN_HIGH);
-	loadimage(&g[1], _T("./imgs/map/garden2.jpg"), GARDEN_WIDTH, GARDEN_HIGH);
 	//组件
 	loadimage(&s[0], _T("./imgs/screen/PanelBackground.png"));
 	loadimage(&s[1], _T("./imgs/screen/ChooserBackground.png"));
 	loadimage(&s[2], _T("./imgs/screen/StartButton.png"));
 	//卡片文件
-	loadimage(&c[0], _T("./imgs/cards/card_1.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[1], _T("./imgs/cards/card_2.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[2], _T("./imgs/cards/card_3.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[3], _T("./imgs/cards/card_4.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[4], _T("./imgs/cards/card_hypnoshroom.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[5], _T("./imgs/cards/card_iceshroom.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[6], _T("./imgs/cards/card_jalapeno.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[7], _T("./imgs/cards/card_potatomine.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[8], _T("./imgs/cards/card_puffshroom.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[9], _T("./imgs/cards/card_repeaterpea.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[10], _T("./imgs/cards/card_scaredyshroom.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[11], _T("./imgs/cards/card_snowpea.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[12], _T("./imgs/cards/card_spikeweed.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[13], _T("./imgs/cards/card_squash.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[14], _T("./imgs/cards/card_sunshroom.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[15], _T("./imgs/cards/card_threepeashooter.png"), CARDS_WIDTH, CARDS_HIGH);
-	loadimage(&c[16], _T("./imgs/cards/card_wallnut.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[0][0], _T("./cpzb/c0.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[0][1], _T("./cpzb/c0_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[1][0], _T("./cpzb/c1.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[1][1], _T("./cpzb/c1_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[2][0], _T("./cpzb/c2.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[2][1], _T("./cpzb/c2_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[3][0], _T("./cpzb/c3.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[3][1], _T("./cpzb/c3_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[4][0], _T("./cpzb/c4.png"), CARDS_WIDTH, CARDS_HIGH);
+	loadimage(&c[4][1], _T("./cpzb/c4_cd.png"), CARDS_WIDTH, CARDS_HIGH);
+
+	//植物僵尸信息
+
+		//植物:
+	//向日葵
+	plantin[0].ID = 0;
+	plantin[0].HP = 300;
+	plantin[0].Atk = 0;
+	plantin[0].recharge = 19000;
+	plantin[0].cd = 6000;
+	plantin[0].cost = 50;
+	plantin[0].PT = 0;
+	plantin[0].danmage_point = 0;
+	loadimage(&plantin[0].img, _T("./cpzb/p01.png"));
+	//豌豆射手
+	plantin[1].ID = 1;
+	plantin[1].HP = 300;
+	plantin[1].Atk = 35;
+	plantin[1].recharge = 1400;
+	plantin[1].cd = 7000;
+	plantin[1].cost = 125;
+	plantin[1].PT = 0;
+	plantin[1].danmage_point = 0;
+	loadimage(&plantin[1].img, _T("./cpzb/p02.png"));
+	//寒冰射手
+	plantin[2].ID = 2;
+	plantin[2].HP = 300;
+	plantin[2].Atk = 20;
+	plantin[2].recharge = 1400;
+	plantin[2].cd = 7000;
+	plantin[2].cost = 200;
+	plantin[2].PT = 0;
+	plantin[2].danmage_point = 0;
+	loadimage(&plantin[2].img, _T("./cpzb/p03.png"));
+	//牢大  p[3]和p[4]中储存原图片和破损图片,使用ID作为索引
+	plantin[3].ID = 3;
+	plantin[3].HP = 5000;
+	plantin[3].Atk = 0;
+	plantin[3].recharge = 100000;
+	plantin[3].cd = 20000;
+	plantin[3].PT = 0;
+	plantin[3].danmage_point = 2500;
+	loadimage(&plantin[3].img, _T("./cpzb/p04.png"));
+	//赢 落地后直接胜利
+	plantin[4].ID = 5;
+	plantin[4].HP = 300;
+	plantin[4].Atk = 0;
+	plantin[4].recharge = 100;
+	plantin[4].cd = 0;
+	plantin[4].PT = 0;
+	plantin[4].danmage_point = 0;
+	loadimage(&plantin[4].img, _T("./cpzb/p5.png"));
+	//僵尸:
+	//普通僵尸 z[0]和z[1]中储存原图片和破损图片,使用ID作为索引
+	zombiein[0].ID = 0;
+	zombiein[0].HP = 210;
+	zombiein[0].Atk = 10;
+	zombiein[0].speed = 2;
+	zombiein[0].cost = 25;
+	zombiein[0].buff = 0;
+	zombiein[0].danmage_point = 105;
+	loadimage(&zombiein[0].img[0][0], _T("./cpzb/z001.png"));
+	loadimage(&zombiein[0].img[0][1], _T("./cpzb/z002.png"));
+	loadimage(&zombiein[0].img[1][0], _T("./cpzb/z003.png"));
+	loadimage(&zombiein[0].img[1][1], _T("./cpzb/z004.png"));
+	loadimage(&zombiein[0].img[2][0], _T("./cpzb/z005.png"));
+	loadimage(&zombiein[0].img[2][1], _T("./cpzb/z006.png"));
+	loadimage(&zombiein[0].img[3][0], _T("./cpzb/z007.png"));
+	loadimage(&zombiein[0].img[3][1], _T("./cpzb/z008.png"));
+	//护甲僵尸 图片规则如上
+	zombiein[1].ID = 2;
+	zombiein[1].HP = 420;
+	zombiein[1].Atk = 10;
+	zombiein[1].speed = 2;
+	zombiein[1].cost = 50;
+	zombiein[1].buff = 0;
+	zombiein[1].danmage_point = 180;
+	loadimage(&zombiein[1].img[0][0], _T("./cpzb/z011.png"));
+	loadimage(&zombiein[1].img[0][1], _T("./cpzb/z012.png"));
+	loadimage(&zombiein[1].img[1][0], _T("./cpzb/z013.png"));
+	loadimage(&zombiein[1].img[1][1], _T("./cpzb/z014.png"));
+	loadimage(&zombiein[1].img[2][0], _T("./cpzb/z015.png"));
+	loadimage(&zombiein[1].img[2][1], _T("./cpzb/z016.png"));
+	loadimage(&zombiein[1].img[3][0], _T("./cpzb/z017.png"));
+	loadimage(&zombiein[1].img[3][1], _T("./cpzb/z018.png"));
+	//绿尸寒坤坤 ee
+	zombiein[2].ID = 4;
+	zombiein[2].HP = 350;
+	zombiein[2].Atk = 15;
+	zombiein[2].speed = 3;
+	zombiein[2].cost = 100;
+	zombiein[2].buff = 999;	//buff999时攻击伤害为10000,在check里使用
+	zombiein[2].danmage_point = 125;
+	loadimage(&zombiein[2].img[0][0], _T("./cpzb/z031.png"));
+	loadimage(&zombiein[2].img[0][1], _T("./cpzb/z032.png"));
+	loadimage(&zombiein[2].img[1][0], _T("./cpzb/z033.png"));
+	loadimage(&zombiein[2].img[1][1], _T("./cpzb/z034.png"));
+	loadimage(&zombiein[2].img[2][0], _T("./cpzb/z035.png"));
+	loadimage(&zombiein[2].img[2][1], _T("./cpzb/z036.png"));
+	loadimage(&zombiein[2].img[3][0], _T("./cpzb/z037.png"));
+	loadimage(&zombiein[2].img[3][1], _T("./cpzb/z038.png"));
+
+	loadimage(&zombiein[2].img[4][0], _T("./cpzb/z0021.png"));
+	loadimage(&zombiein[2].img[4][1], _T("./cpzb/z0022.png"));
+	loadimage(&zombiein[2].img[5][0], _T("./cpzb/z0023.png"));
+	loadimage(&zombiein[2].img[5][1], _T("./cpzb/z0024.png"));
+
+	//丁真8
+	zombiein[3].ID = 6;
+	zombiein[3].HP = 370;
+	zombiein[3].Atk = 15;
+	zombiein[3].speed = 2;
+	zombiein[3].cost = 50;
+	zombiein[3].buff = 0;//HP<破损点时,buff变为10,speed变为4,atk变为30
+	zombiein[3].danmage_point = 120;
+	loadimage(&zombiein[3].img[0][0], _T("./cpzb/z041.png"));
+	loadimage(&zombiein[3].img[0][1], _T("./cpzb/z041.png"));
+	loadimage(&zombiein[3].img[1][0], _T("./cpzb/z043.png"));
+	loadimage(&zombiein[3].img[1][1], _T("./cpzb/z043.png"));
+	loadimage(&zombiein[3].img[2][0], _T("./cpzb/z042.png"));
+	loadimage(&zombiein[3].img[2][1], _T("./cpzb/z042.png"));
+	loadimage(&zombiein[3].img[3][0], _T("./cpzb/z044.png"));
+	loadimage(&zombiein[3].img[3][1], _T("./cpzb/z044.png"));
+
+}
+
+void game_view() {
+	BeginBatchDraw();
+	while (true)
+	{
+		putimage(garden.x, garden.y, &g[0]);
+		putimage(0, 0, &s[1]);
+		setbkmode(TRANSPARENT);
+		settextstyle(25, 0, "微软雅黑");
+		outtextxy(28, 58, _T("50"));
+		for (int i = 0; i < Lb.size; i++)
+		{
+			putimage(82 + CARDS_WIDTH * i, 5, &c[Lb.id[i]][0]);
+		}
+	}
 }
 
 //开始前的动画和携带的植物的选择
@@ -56,7 +188,14 @@ void Star_game_view() {
 			garden.x += garden.speed;
 			/*printf("%d", garden.speed);*///速度检查器
 			putimage(garden.x, garden.y, &g[0]);
-			printf("%d %d", garden.speed, garden.x);
+			putimage(0, 0, &s[1]);
+			setbkmode(TRANSPARENT);
+			settextstyle(25, 0, "微软雅黑");
+			outtextxy(28, 58, _T("50"));
+			for (int i = 0; i < Lb.size; i++)
+			{
+				putimage(82 + CARDS_WIDTH * i, 5, &c[Lb.id[i]][0]);
+			}
 			FlushBatchDraw();
 		}
 	}
@@ -73,6 +212,9 @@ void plants_choose_view() {
 		putimage(garden.x, garden.y, &g[0]);//地图
 		putimage(0, 87, &s[0]);
 		putimage(0, 0, &s[1]);
+		setbkmode(TRANSPARENT);
+		settextstyle(25, 0, "微软雅黑");
+		outtextxy(28, 58, _T("50"));
 		if (m.x > 150 && m.x < 304 && m.y>548 && m.y < 585)
 		{
 			putimage(155, 548, &s[2]);//开始游戏按钮的动效（当鼠标移动到按钮位置时候按钮发光）
@@ -83,13 +225,14 @@ void plants_choose_view() {
 		{
 			for (int j = 0; j < 8; j++)
 			{
-				putimage(20 + CARDS_WIDTH * j, 122 + CARDS_HIGH * i, &c[num]);
+				
 				if (!find(&Lb, num))
 				{
-					setbkmode(TRANSPARENT);
-					settextcolor(RED);
-					settextstyle(16, 0, _T("Consolas"));
-					outtextxy(20 + CARDS_WIDTH * j, 122 + CARDS_HIGH * (i + 0.4), "Selected");
+					putimage(20 + CARDS_WIDTH * j, 122 + CARDS_HIGH * i, &c[num][1]);
+				}
+				else
+				{
+					putimage(20 + CARDS_WIDTH * j, 122 + CARDS_HIGH * i, &c[num][0]);
 				}
 				num++;
 			}
@@ -97,7 +240,7 @@ void plants_choose_view() {
 		//已经选择携带的卡片的打印
 		for (int i = 0; i < Lb.size; i++)
 		{
-			putimage(82 + CARDS_WIDTH * i, 5, &c[Lb.id[i]]);
+			putimage(82 + CARDS_WIDTH * i, 5, &c[Lb.id[i]][0]);
 		}
 
 		//检测鼠标操作
@@ -126,7 +269,7 @@ void plants_choose_view() {
 						break;
 					}
 					id++;
-					if (id > 16)
+					if (id > 4)
 					{
 						re = 1;
 						break;
@@ -388,10 +531,13 @@ void zombie_act(LinkList_z Znode)
 	int atk = 0;
 	while (zp->next != NULL)
 	{
-		putimage(zp->x, zp->y, &z[zp->ID]);
 		if (zp->isAtk == 1)//记录攻击力
 		{
-			int atk = zombiein[zp->ID].Atk;
+			double atk = zombiein[zp->ID].Atk;
+			if (zp->buff==1)
+			{
+				atk *= 0.75;
+			}
 			zp = zp->next;
 			zp->speed = 0; //攻击时停下
 
@@ -453,7 +599,7 @@ void zombie_act(LinkList_z Znode)
 		}
 		else zp->speed = zombiein[zp->ID].speed;//不攻击时运动
 		//僵尸运动
-
+		zp->x -= zp->speed;
 		////改变图片
 		//if (zp->hp <= zombiein[zp->ID].danmage_point);
 
@@ -499,7 +645,7 @@ void plant() {
 				{
 					if (msg.x > 86 + 55.5 * i + (55.5 - CARDS_WIDTH) && msg.x < 86 + 55.5 * (i + 1) - (55.5 - CARDS_WIDTH))
 					{
-						if (click_time - Lb.plant_time[i] > plants_in[Lb.id[i]].cd)
+						if (click_time - Lb.plant_time[i] > plantin[Lb.id[i]].cd)
 						{
 							pick = i;//pick为选择栏的选择的植物的序号
 						}
@@ -538,7 +684,7 @@ void plant() {
 									if (SetHp_Judge == 1)
 									{
 										//下面这句怎么写？？？怎么根据ID去找对应的植物的hp？？？
-										inner_game_map[i][j]->Info->hp = plants_in[i].HP;//顺序表第n个的对应植物的总hp值
+										inner_game_map[i][j]->Info->hp = plantin[i].HP;//顺序表第n个的对应植物的总hp值
 
 
 
@@ -767,8 +913,6 @@ void RegisterDraw()
 
 	EndBatchDraw();
 }
-
-
 //登录菜单
 void Register()
 {
@@ -1079,10 +1223,6 @@ int judeguser()
 	return 1;
 }
 
-
-
-
-
 void Levle_choose_view()
 {
 	IMAGE mag1;//选关界面
@@ -1194,45 +1334,52 @@ void Levle_choose_view()
 }
 
 
-
-
-
-int main()
-{
-	initgraph(SCREEN_WIDTH, SCREEN_HIGH);
-	InitImages();
-	BeginBatchDraw();
-	main_menu();
-	EndBatchDraw();
-	return 0;
-}
-
-
 //
-//int main() {
+//int main()
+//{
 //	initgraph(SCREEN_WIDTH, SCREEN_HIGH);
-//	InitImages();
+//	gameinit();
 //	BeginBatchDraw();
-//
-//	while (true)
-//	{
-//		Star_game_view();
-//		clock_t startime = clock();
-//		putimage(0, 0, &s[1]);
-//		Lz = initlist_z();
-//		while (true)
-//		{
-//			zombie_creat_time(startime);
-//		}
-//		scanf_s("%d", &level);
-//	}
+//	main_menu();
 //	EndBatchDraw();
-//	closegraph();
 //	return 0;
 //}
 
+int main() {
+	const int frameDlay = 1000 / 60;
+	int frameStart = 0;
+	int frameTime = 0;
+	int index = 0;
 
+	initgraph(SCREEN_WIDTH, SCREEN_HIGH);
+	gameinit();
+	BeginBatchDraw();
+	while (true)
+	{
+		
+		frameStart = clock();
+		
+		cleardevice();
 
+		putimage(garden.x, garden.y, &g[0]);
+		drawImg(200, 250, 64, 95, &zombiein[0].img[0][0], index * 64, 0);
+		drawImg(200, 150,70, 71, &plantin[4].img, index * 64, 0);
+
+		
+
+		index = (clock() / 200) % frameStart % 9;
+
+		frameTime = clock() - frameStart;
+		if (frameDlay - frameTime > 0)
+		{
+			Sleep(frameDlay - frameTime);
+		}
+		FlushBatchDraw();
+	}
+	EndBatchDraw();
+	closegraph();
+	return 0;
+}
 
 
 

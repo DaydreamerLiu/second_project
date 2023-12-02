@@ -1,0 +1,10 @@
+使用drawImg实现动画
+
+僵尸参数为
+drawImg(x, y, 64, 95, &zombie, index * 64, 0);
+
+植物参数为
+drawImg(x, y, 70, 71, &plant, index * 70, 0);
+
+		
+		
